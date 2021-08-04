@@ -4,7 +4,6 @@ package com.helio.WebApiService;
 import com.helio.AppConfig.AppConstant;
 import com.helio.RabbitServiceAPI.RabbitServiceRESTAPI;
 import com.helio.RequestOB.RequestOB;
-import com.helio.ServiceCalc.CalculatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,14 +47,15 @@ public class APIController {
             Calcapilogger.info("Request id is " + reqid);
             RequestOB calobj = new RequestOB(avalue, bvalue, Result, signcalculation);
             signcalculation = calobj.getsignfrompath(restOfTheUrl); // identify the type of calculation to via the url path used
+            calobj.setSign(signcalculation);
             Calcapilogger.info("Request id: " + reqid + " - Request is for calculation of type " + signcalculation);
             Calcapilogger.info("Request id: " + reqid + " - Request pre processing done successfuly.");
             Calcapilogger.info("Request id: " + reqid + " - Request being sent to calculator. Using the value of A = " + calobj.getNumA().toString()
                     +" and value of B = " + calobj.getNumB().toString());
-            CalculatorService calculationrequest = new CalculatorService(avalue, bvalue, signcalculation);
+            /*CalculatorService calculationrequest = new CalculatorService(avalue, bvalue, signcalculation);
             Calcapilogger.info("Request id: " + reqid + " - Request calculated successfuly.");
             calobj.setResult(calculationrequest.CalculationResult());
-            Calcapilogger.info("Request id: " + reqid + " - Request result is " + calobj.getResult().toString());
+            Calcapilogger.info("Request id: " + reqid + " - Request result is " + calobj.getResult().toString());*/
 
 
             /**
@@ -69,7 +69,7 @@ public class APIController {
             map.put("valueA", calobj.getNumA());
             map.put("valueB", calobj.getNumB());
             map.put("sign", calobj.getSign());
-            map.put("Result", calobj.getResult());
+            //map.put("Result", calobj.getResult());
             //rabbitMqService.sendAPIMessage("Result" +  calobj.getResult());
             rabbitMqService.sendAPIMessage(map);
             return new ResponseEntity<HashMap>( map , responseHeaders, HttpStatus.OK);
