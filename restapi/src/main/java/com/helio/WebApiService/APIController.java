@@ -65,12 +65,13 @@ public class APIController {
             responseHeaders.set("Request_ID", reqid + ""); //set unique id of request as new header key
             Calcapilogger.info("Request id: " + reqid + " - Sending response to client");
 
-            /*map.put("requestid", reqid);
+            map.put("requestid", reqid);
             map.put("valueA", calobj.getNumA());
             map.put("valueB", calobj.getNumB());
-            map.put("sign", calobj.getSign());*/
+            map.put("sign", calobj.getSign());
             map.put("Result", calobj.getResult());
-            rabbitMqService.sendAPIMessage("Result " +  calobj.getResult());
+            //rabbitMqService.sendAPIMessage("Result" +  calobj.getResult());
+            rabbitMqService.sendAPIMessage(map);
             return new ResponseEntity<HashMap>( map , responseHeaders, HttpStatus.OK);
 
         } catch (Exception ex) {

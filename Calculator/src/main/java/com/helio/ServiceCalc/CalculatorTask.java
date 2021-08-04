@@ -23,11 +23,12 @@ public class CalculatorTask {
     @Scheduled(fixedRate = 5000, initialDelay = 2000)
     public void scheduleTaskCheckAMQPQueue() {
 
-        try {
+       /* try {
             Calclogger.info("Listening to queue " + queueappname + " for messages");
             amqpservicecalculator.receiveAPIMessage(queueappname);
         }catch (Exception ex){
             Calclogger.warn("No messages in queue " + queueappname);
-        }
+        }*/
+
     }
 }
