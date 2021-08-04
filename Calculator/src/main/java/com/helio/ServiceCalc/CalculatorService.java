@@ -1,12 +1,19 @@
 package com.helio.ServiceCalc;
 
+import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
+
+
+@Service
 public class CalculatorService {
-    private  BigDecimal sRresult = new BigDecimal("0.0");;
+    private  BigDecimal sRresult ;
     private  BigDecimal sRcvalueA;
     private  BigDecimal sRcvalueB;
     private  String sRsign;
+
+    public CalculatorService() {
+    }
 
     public CalculatorService(BigDecimal numA, BigDecimal numB, String sign) {
         this.sRcvalueA = numA;

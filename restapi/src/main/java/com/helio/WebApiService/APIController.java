@@ -2,10 +2,12 @@ package com.helio.WebApiService;
 
 
 import com.helio.AppConfig.AppConstant;
+import com.helio.RabbitServiceAPI.RabbitServiceRESTAPI;
 import com.helio.RequestOB.RequestOB;
 import com.helio.ServiceCalc.CalculatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +24,12 @@ import java.util.Random;
 public class APIController {
 
     Logger Calcapilogger = LoggerFactory.getLogger(APIController.class);
-
-
+    @Autowired
+    RabbitServiceRESTAPI rabbitMqService;
+    /**
+     * Controller for handling all request for calculator API
+     *
+     */
     @GetMapping(path={ "/sum", "/subtract", "/divide", "/multiple"})
     @ResponseBody
     public ResponseEntity<?> calculationrequest(@RequestParam("a") BigDecimal avalue,
@@ -49,10 +55,13 @@ public class APIController {
             CalculatorService calculationrequest = new CalculatorService(avalue, bvalue, signcalculation);
             Calcapilogger.info("Request id: " + reqid + " - Request calculated successfuly.");
             calobj.setResult(calculationrequest.CalculationResult());
-
-
-            /* Sending to Message Queue, wait then get response */
             Calcapilogger.info("Request id: " + reqid + " - Request result is " + calobj.getResult().toString());
+
+
+            /**
+             * Sending Message to Queue, wait then receive response to send to client
+             *
+             */
             responseHeaders.set("Request_ID", reqid + ""); //set unique id of request as new header key
             Calcapilogger.info("Request id: " + reqid + " - Sending response to client");
 
@@ -61,6 +70,7 @@ public class APIController {
             map.put("valueB", calobj.getNumB());
             map.put("sign", calobj.getSign());*/
             map.put("Result", calobj.getResult());
+            rabbitMqService.sendAPIMessage("Result " +  calobj.getResult());
             return new ResponseEntity<HashMap>( map , responseHeaders, HttpStatus.OK);
 
         } catch (Exception ex) {
