@@ -51,6 +51,10 @@ public class RequestOB {
         this.result = result;
     }
 
+    /**
+     * return the sign for calculation requested
+     * @param-urlpath
+     */
     public String getsignfrompath(String urlpath){
         int strlength = urlpath.length();
         String checkpath =  urlpath.substring(urlpath.lastIndexOf("/")+1,strlength);

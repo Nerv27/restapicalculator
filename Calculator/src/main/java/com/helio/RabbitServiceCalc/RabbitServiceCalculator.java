@@ -1,7 +1,7 @@
 package com.helio.RabbitServiceCalc;
 
 
-import com.helio.ServiceCalc.CalculatorService;
+import com.helio.Calculator.CalculatorOb;
 import com.helio.ServiceConfig.RabbitServiceConfigCALC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,11 +22,13 @@ public class RabbitServiceCalculator {
     private AmqpTemplate amqpinstancecalculator;
 
     Logger Calcservicelogger = LoggerFactory.getLogger(RabbitServiceCalculator.class);
-    CalculatorService CaServ;
+    CalculatorOb CaServ;
     @Value( "${app.rabbitmq.queue}" )
     String queueappname;
     @Value( "${serv.rabbitmq.queue}" )
     String queueservname;
+    @Value( "${serv.rabbitmq.routingkey}" )
+    String routingkeyservname;
 
     String requestid;
     BigDecimal requestresult;
@@ -40,15 +42,14 @@ public class RabbitServiceCalculator {
      * @param-message
      */
     public void sendMessageCalc(HashMap message) {
-        amqpinstancecalculator.convertAndSend(RabbitServiceConfigCALC.ExchangeNamecalc,"direct", message);
-
+        amqpinstancecalculator.convertAndSend(RabbitServiceConfigCALC.ExchangeNamecalc,routingkeyservname, message);
     }
 
-    @RabbitListener(queues = "${app.rabbitmq.queue}")
     /**
      * receive messages from rabbitMq queue
      * @param incomingMessage
      */
+    @RabbitListener(queues = "${app.rabbitmq.queue}")
     public void recievedMessageCalc(HashMap incomingMessage) {
 
         try {
@@ -61,7 +62,7 @@ public class RabbitServiceCalculator {
             requestvalueA = new BigDecimal(incomingMessage.get("valueA").toString());
             requestvalueB = new BigDecimal(incomingMessage.get("valueB").toString());;
             requestsign =  incomingMessage.get("sign").toString();
-            CaServ = new CalculatorService(requestvalueA,requestvalueB,requestsign);
+            CaServ = new CalculatorOb(requestvalueA,requestvalueB,requestsign);
             Calcservicelogger.info("ServiceHandler >> Request id: " + requestid + " - received message");
             Calcservicelogger.info("ServiceHandler >> Request id: " + requestid + " - ValueA= " + requestvalueA
                     + ", ValueB="+ requestvalueB + ", Sign="+  requestsign);

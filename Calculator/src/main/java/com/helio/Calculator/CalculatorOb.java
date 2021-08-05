@@ -1,27 +1,26 @@
-package com.helio.ServiceCalc;
+package com.helio.Calculator;
 
-import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
-
-
-@Service
-public class CalculatorService {
+public class CalculatorOb {
     private  BigDecimal sRresult ;
     private  BigDecimal sRcvalueA;
     private  BigDecimal sRcvalueB;
     private  String sRsign;
 
-    public CalculatorService() {
+    public CalculatorOb() {
     }
 
-    public CalculatorService(BigDecimal numA, BigDecimal numB, String sign) {
+    public CalculatorOb(BigDecimal numA, BigDecimal numB, String sign) {
         this.sRcvalueA = numA;
         this.sRcvalueB = numB;
         this.sRsign = sign;
 
     }
-
+    /**
+     * Calculate tow values based on sign
+     *
+     */
     public BigDecimal CalculationResult() {
 
 

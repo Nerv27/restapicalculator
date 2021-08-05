@@ -21,41 +21,47 @@ public class RabbitServiceRESTAPI {
     String requestid;
     private String requestresult = "noresponse";
 
-
     @Value( "${serv.rabbitmq.queue}" )
     String queueservnameapi;
-        /**
-     * sends messages via Direct exchange
-     * @param message
+    @Value( "${serv.rabbitmq.routingkey}" )
+    String routingkeyservnameapi;
+
+
+    /**
+     * sends messages to restapi queue
+     * @param-message
      */
     public void sendAPIMessage(HashMap message) {
-        amqpinstance.convertAndSend(RabbitServiceConfigRESTAPI.ExchangeNamerestapi, "direct", message);
-
+        amqpinstance.convertAndSend(RabbitServiceConfigRESTAPI.ExchangeNamerestapi, routingkeyservnameapi, message);
     }
 
-    @RabbitListener(queues = "${serv.rabbitmq.queue}")
+
     /**
      * receive messages from rabbitMq queue
-     * @param incomingMessage
+     * @param-incomingMessage
      */
+    @RabbitListener(queues = "${serv.rabbitmq.queue}")
     public void recievedMessageAPI(HashMap incomingMessage) {
 
         try {
             /**
-             * process request
-             *
+             * process message from calc queue
+             *@param-incomingMessage
              */
             Calcapilogger.info("APIHandler >> Retrieving message from queue: " + queueservnameapi);
             requestid = incomingMessage.get("requestid").toString();
             requestresult =  incomingMessage.get("Result").toString();
             Calcapilogger.info("APIHandler >> Request id: " + requestid + " - received message");
             Calcapilogger.info("APIHandler >> Request id: " + requestid + " - Result= " + requestresult);
-
         }catch (Exception ex){
             Calcapilogger.error("APIHandler >> Error on received message." ,ex);
         }
     }
 
+    /**
+     * get message body that is stored on variable requestresult
+     *
+     */
     public String getRequestresult() {
         return requestresult;
     }

@@ -17,7 +17,7 @@ public class RabbitServiceConfigCALC {
     public static  String routingkeynamecalc;
 
     /**
-     * We load tha values for queue, exchange and routing key
+     * We load tha values for queue, exchange and routing key for Calc
      *
      */
 
@@ -31,7 +31,7 @@ public class RabbitServiceConfigCALC {
     }
 
     /**
-     * We define our queue info
+     * Define Calc Queue
      *
      * @return Queue object
      */
@@ -41,8 +41,9 @@ public class RabbitServiceConfigCALC {
     }
 
     /**
-     * Creates a direct Exchange
+     * Creates a Calc Exchange
      *
+     * @return Exchange object
      */
     @Bean
     DirectExchange calcExchangecalc() {
@@ -50,17 +51,12 @@ public class RabbitServiceConfigCALC {
     }
 
     /**
-     * Bind topic direct echange to a queue
+     * Bind Calc exchange to a queue
      *
-     * @param-queue
-     * @param-exchange
      * @return
      */
     @Bean
     Binding calcExchangeBinding() {
         return BindingBuilder.bind(calcqueue()).to(calcExchangecalc()).with(routingkeynamecalc);
     }
-
-
-
 }

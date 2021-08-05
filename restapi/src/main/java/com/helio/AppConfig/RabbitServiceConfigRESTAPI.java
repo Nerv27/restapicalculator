@@ -17,7 +17,7 @@ public class RabbitServiceConfigRESTAPI {
     public static  String routingkeynamerestapi;
 
     /**
-     * We load tha values for queue, exchange and routing key
+     * We load tha values for queue, exchange and routing key for restapi
      *
      */
 
@@ -31,7 +31,7 @@ public class RabbitServiceConfigRESTAPI {
     }
 
     /**
-     * We define our queue info
+     * Define restapi queue
      *
      * @return Queue object
      */
@@ -41,8 +41,9 @@ public class RabbitServiceConfigRESTAPI {
     }
 
     /**
-     * Creates a direct Exchange
+     * Creates a restapi Exchange
      *
+     *  @return Exchange object
      */
 
     @Bean
@@ -51,10 +52,8 @@ public class RabbitServiceConfigRESTAPI {
     }
 
     /**
-     * Bind topic direct echange to a queue
+     * Bind topic restapi exchange to a queue
      *
-     * @param-queue
-     * @param-exchange
      * @return
      */
 
@@ -62,7 +61,4 @@ public class RabbitServiceConfigRESTAPI {
     Binding ExchangeBindingcalcrestapi() {
         return BindingBuilder.bind(queuecalc()).to(Exchangerestapi()).with(routingkeynamerestapi);
     }
-
-
-
 }
