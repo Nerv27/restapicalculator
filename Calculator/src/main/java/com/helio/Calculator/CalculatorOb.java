@@ -22,23 +22,20 @@ public class CalculatorOb {
      *
      */
     public BigDecimal CalculationResult() {
-
-
         switch (sRsign) {
-            case "+":
+            case "sum":
                 sRresult = sRcvalueA.add(sRcvalueB);
                 break;
-            case "-":
+            case "subtract":
                 sRresult = sRcvalueA.subtract(sRcvalueB);
                 break;
-            case "/":
+            case "divide":
                 sRresult = sRcvalueA.divide(sRcvalueB);
                 break;
-            case "*":
+            case "multiple":
                 sRresult = sRcvalueA.multiply(sRcvalueB);
                 break;
         }
-
         return sRresult;
     }
 }

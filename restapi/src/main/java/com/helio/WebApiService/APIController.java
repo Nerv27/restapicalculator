@@ -3,7 +3,6 @@ package com.helio.WebApiService;
 
 import com.helio.AppConfig.AppConstant;
 import com.helio.RabbitServiceAPI.RabbitServiceRESTAPI;
-import com.helio.RequestOB.RequestOB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ public class APIController {
     String valueresult = "noresponse";
     HttpHeaders responseHeaders = new HttpHeaders();
     int reqid;
-    String signcalculation = "";
-    BigDecimal Result = new BigDecimal("0.0");
+    int urllength;
+    String signcalculation;
     String restOfTheUrl;
     Logger Calcapilogger = LoggerFactory.getLogger(APIController.class);
     /**
@@ -54,13 +53,13 @@ public class APIController {
              *
              */
             Calcapilogger.info("APIHandler >> Request id is " + reqid);
-            RequestOB calobj = new RequestOB(avalue, bvalue, Result, signcalculation);
-            signcalculation = calobj.getsignfrompath(restOfTheUrl);
-            calobj.setSign(signcalculation);
+            urllength = restOfTheUrl.length();
+            signcalculation =  restOfTheUrl.substring(restOfTheUrl.lastIndexOf("/")+1,urllength);
             Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request is for calculation of type " + signcalculation);
             Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request pre processing done successfuly.");
-            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request being sent to calculator. Using the value of A = " + calobj.getNumA().toString()
-                    +" and value of B = " + calobj.getNumB().toString());
+            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request being sent to calculator. Using the value of A = "
+                    + avalue.toString()
+                    +" and value of B = " + bvalue.toString());
 
             /**
              * Sending Message to Queue, wait then receive response to send to client
@@ -68,9 +67,9 @@ public class APIController {
              */
             maprequest.clear();
             maprequest.put("requestid", reqid);
-            maprequest.put("valueA", calobj.getNumA());
-            maprequest.put("valueB", calobj.getNumB());
-            maprequest.put("sign", calobj.getSign());
+            maprequest.put("valueA", avalue);
+            maprequest.put("valueB", bvalue);
+            maprequest.put("sign", signcalculation);
             rabbitMqService.sendAPIMessage(maprequest);
 
             /**
