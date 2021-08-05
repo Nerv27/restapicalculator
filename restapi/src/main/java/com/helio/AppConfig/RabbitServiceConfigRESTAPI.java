@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class RabbitServiceConfigRESTAPI {
@@ -36,7 +35,6 @@ public class RabbitServiceConfigRESTAPI {
      *
      * @return Queue object
      */
-    @Primary
     @Bean
     Queue queuecalc() {
         return new Queue(queueNamerestapi, true);
@@ -46,7 +44,7 @@ public class RabbitServiceConfigRESTAPI {
      * Creates a direct Exchange
      *
      */
-    @Primary
+
     @Bean
     DirectExchange Exchangerestapi() {
         return new DirectExchange(ExchangeNamerestapi);
@@ -55,14 +53,14 @@ public class RabbitServiceConfigRESTAPI {
     /**
      * Bind topic direct echange to a queue
      *
-     * @param queue
-     * @param exchange
+     * @param-queue
+     * @param-exchange
      * @return
      */
-    @Primary
+
     @Bean
-    Binding ExchangeBindingcalcrestapi(Queue queue, DirectExchange directExchange) {
-        return BindingBuilder.bind(queue).to(directExchange).with(routingkeynamerestapi);
+    Binding ExchangeBindingcalcrestapi() {
+        return BindingBuilder.bind(queuecalc()).to(Exchangerestapi()).with(routingkeynamerestapi);
     }
 
 

@@ -52,13 +52,13 @@ public class RabbitServiceConfigCALC {
     /**
      * Bind topic direct echange to a queue
      *
-     * @param queue
-     * @param exchange
+     * @param-queue
+     * @param-exchange
      * @return
      */
     @Bean
-    Binding calcExchangeBinding(Queue queue, DirectExchange directExchange) {
-        return BindingBuilder.bind(queue).to(directExchange).with(routingkeynamecalc);
+    Binding calcExchangeBinding() {
+        return BindingBuilder.bind(calcqueue()).to(calcExchangecalc()).with(routingkeynamecalc);
     }
 
 

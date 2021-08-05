@@ -25,6 +25,14 @@ public class APIController {
     Logger Calcapilogger = LoggerFactory.getLogger(APIController.class);
     @Autowired
     RabbitServiceRESTAPI rabbitMqService;
+    HashMap maprequest = new HashMap<>();
+    HashMap mapresponse = new HashMap<>();
+    String valueresult = "noresponse";
+    HttpHeaders responseHeaders = new HttpHeaders();
+    int reqid;
+    String signcalculation = "";
+    BigDecimal Result = new BigDecimal("0.0");
+    String restOfTheUrl;
     /**
      * Controller for handling all request for calculator API
      *
@@ -33,49 +41,55 @@ public class APIController {
     @ResponseBody
     public ResponseEntity<?> calculationrequest(@RequestParam("a") BigDecimal avalue,
                                                 @RequestParam("b") BigDecimal bvalue, HttpServletRequest request){
-        String signcalculation = "";
-        BigDecimal Result = new BigDecimal("0.0");
-        String restOfTheUrl = (String) request.getAttribute(
+
+        restOfTheUrl = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        int reqid = new Random().nextInt(Integer.MAX_VALUE);
-        HashMap map = new HashMap<>();
+        reqid = new Random().nextInt(Integer.MAX_VALUE);
 
-        Calcapilogger.info("Request received for Calculator API");
+
+        Calcapilogger.info("APIHandler >> Request received for Calculator API");
         try {
-            /*Create object of calculator set values*/
-            Calcapilogger.info("Request id is " + reqid);
+            /**
+             * Create object of calculator set values
+             *
+             */
+            Calcapilogger.info("APIHandler >> Request id is " + reqid);
             RequestOB calobj = new RequestOB(avalue, bvalue, Result, signcalculation);
-            signcalculation = calobj.getsignfrompath(restOfTheUrl); // identify the type of calculation to via the url path used
+            signcalculation = calobj.getsignfrompath(restOfTheUrl);
             calobj.setSign(signcalculation);
-            Calcapilogger.info("Request id: " + reqid + " - Request is for calculation of type " + signcalculation);
-            Calcapilogger.info("Request id: " + reqid + " - Request pre processing done successfuly.");
-            Calcapilogger.info("Request id: " + reqid + " - Request being sent to calculator. Using the value of A = " + calobj.getNumA().toString()
+            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request is for calculation of type " + signcalculation);
+            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request pre processing done successfuly.");
+            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Request being sent to calculator. Using the value of A = " + calobj.getNumA().toString()
                     +" and value of B = " + calobj.getNumB().toString());
-            /*CalculatorService calculationrequest = new CalculatorService(avalue, bvalue, signcalculation);
-            Calcapilogger.info("Request id: " + reqid + " - Request calculated successfuly.");
-            calobj.setResult(calculationrequest.CalculationResult());
-            Calcapilogger.info("Request id: " + reqid + " - Request result is " + calobj.getResult().toString());*/
-
 
             /**
              * Sending Message to Queue, wait then receive response to send to client
              *
              */
-            responseHeaders.set("Request_ID", reqid + ""); //set unique id of request as new header key
-            Calcapilogger.info("Request id: " + reqid + " - Sending response to client");
+            maprequest.put("requestid", reqid);
+            maprequest.put("valueA", calobj.getNumA());
+            maprequest.put("valueB", calobj.getNumB());
+            maprequest.put("sign", calobj.getSign());
+            rabbitMqService.sendAPIMessage(maprequest);
+            maprequest.clear();
 
-            map.put("requestid", reqid);
-            map.put("valueA", calobj.getNumA());
-            map.put("valueB", calobj.getNumB());
-            map.put("sign", calobj.getSign());
-            //map.put("Result", calobj.getResult());
-            //rabbitMqService.sendAPIMessage("Result" +  calobj.getResult());
-            rabbitMqService.sendAPIMessage(map);
-            return new ResponseEntity<HashMap>( map , responseHeaders, HttpStatus.OK);
+            while (valueresult == "noresponse") {
+                //Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Waiting for response from Calculator service");;
+                valueresult = rabbitMqService.getRequestresult();
+
+                if(valueresult != "noresponse"){
+                    Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Sending response to client");
+                    mapresponse.clear();
+                    mapresponse.put("result",valueresult);
+                    responseHeaders.set("Request_ID", reqid + "");
+
+                }
+            }
+            valueresult = "noresponse";
+            return new ResponseEntity<HashMap>( mapresponse , responseHeaders, HttpStatus.OK);
 
         } catch (Exception ex) {
-            Calcapilogger.error("Request id: " + reqid + " - Request received for Calculator API is bad request. Error: ", ex);
+            Calcapilogger.error("APIHandler >> Request id: " + reqid + " - Request received for Calculator API is bad request. Error: ", ex);
             return new ResponseEntity<String>(AppConstant.MESSAGE_QUEUE_SEND_ERROR,
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
