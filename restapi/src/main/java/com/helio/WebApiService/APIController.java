@@ -66,27 +66,26 @@ public class APIController {
              * Sending Message to Queue, wait then receive response to send to client
              *
              */
+            maprequest.clear();
             maprequest.put("requestid", reqid);
             maprequest.put("valueA", calobj.getNumA());
             maprequest.put("valueB", calobj.getNumB());
             maprequest.put("sign", calobj.getSign());
             rabbitMqService.sendAPIMessage(maprequest);
-            maprequest.clear();
 
-            while (valueresult == "noresponse") {
-                //Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Waiting for response from Calculator service");;
-                valueresult = rabbitMqService.getRequestresult();
+           while (valueresult == "noresponse") {
+               Thread.sleep(1000);
+               valueresult = rabbitMqService.getRequestresult();
+          }
 
-                if(valueresult != "noresponse"){
-                    Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Sending response to client");
-                    mapresponse.clear();
-                    mapresponse.put("result",valueresult);
-                    responseHeaders.set("Request_ID", reqid + "");
-
-                }
-            }
+            Calcapilogger.info("APIHandler >> Request id: " + reqid + " - Sending response to client");
+            mapresponse.clear();
+            mapresponse.put("result",valueresult);
+            responseHeaders.set("Request_ID", reqid + "");
             valueresult = "noresponse";
             return new ResponseEntity<HashMap>( mapresponse , responseHeaders, HttpStatus.OK);
+
+
 
         } catch (Exception ex) {
             Calcapilogger.error("APIHandler >> Request id: " + reqid + " - Request received for Calculator API is bad request. Error: ", ex);
